@@ -25,32 +25,38 @@ public class PersonController {
     @Autowired
     private PersonRepository repository;
 
+    //get - all
     @GetMapping("/")
     public List<Person> all() {
         return repository.findAll();
     }
+    //get - find
     @GetMapping("/{id}")
     public Person find(@PathVariable("id") UUID id) {
-        
         return repository.findById(id).orElseThrow();
     }
-    
+    //post - criação
     @PostMapping("/")
     public Person create(@RequestBody Person person){
         person.setId(UUID.randomUUID());
         repository.save(person);
         return person;
     }
-
+    //put - update
+    @PutMapping("/{id}")
+    public Person update(@PathVariable("id") UUID id, @RequestBody Person person){
+        var p = repository.findById(id);
+        if(p.isPresent()){
+            var newPerson = p.get();
+            newPerson.setName(person.getName());
+            repository.save(newPerson);
+        }
+        return null;
+    }
     @DeleteMapping("/{id}")
     public void delete(@PathVariable("id") UUID id){
         repository.delete(repository.findById(id).orElseThrow());
     }
 
-    @PutMapping("/{id}")
-    public Person update(@PathVariable("id") UUID id, @RequestBody Person person){
-        Person personFinded = repository.findById(id).orElseThrow();
-        personFinded.setName(person.getName());
-        return personFinded;
-    }
+    
 }
